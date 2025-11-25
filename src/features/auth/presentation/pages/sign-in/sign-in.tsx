@@ -3,8 +3,8 @@
 import type React from "react"
 
 import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Lock, Mail, Phone, Eye, EyeOff } from "lucide-react"
+import { useRouter, useSearchParams } from "next/navigation"
+import { Lock, Mail, Phone, Eye, EyeOff, CheckCircle2 } from "lucide-react"
 import { Button } from "../../../../../shared/components/ui/button";
 import { Input } from "../../../../../shared/components/ui/input";
 import Link from "next/link"
@@ -12,7 +12,9 @@ import { SignInUseCase } from "../../../application/SignInUseCase";
 import { SignInWithGoogleUseCase } from "../../../application/SignInWithGoogleUseCase";
 import { authRepository } from "../../../infrastructure/firebase";
 
-export function SignIn() {
+import { Suspense } from "react"
+
+function SignInContent() {
   const [showPassword, setShowPassword] = useState(false)
   const [activeTab, setActiveTab] = useState<"email" | "phone">("email")
   const [isLoading, setIsLoading] = useState(false)
@@ -20,6 +22,8 @@ export function SignIn() {
   const [password, setPassword] = useState("")
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
+  const searchParams = useSearchParams()
+  const registered = searchParams.get("registered")
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -29,6 +33,7 @@ export function SignIn() {
     try {
       const signInUseCase = new SignInUseCase(authRepository);
       await signInUseCase.execute(email, password);
+
       router.push("/profile");
     } catch (err) {
       if (err instanceof Error) {
@@ -46,7 +51,8 @@ export function SignIn() {
     try {
       const signInWithGoogleUseCase = new SignInWithGoogleUseCase(authRepository);
       await signInWithGoogleUseCase.execute();
-      router.push("/profile");
+      console.log('Google sign-in successful, goes to dashboard');
+      router.push("/dashboard");
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -126,6 +132,12 @@ export function SignIn() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          {registered && (
+            <div className="p-3 text-sm text-green-600 bg-green-50 border border-green-200 rounded-lg flex items-center gap-2">
+              <CheckCircle2 className="w-4 h-4" />
+              Account created! Please verify your email.
+            </div>
+          )}
           {error && (
             <div className="p-3 text-sm text-red-500 bg-red-50 border border-red-200 rounded-lg">
               {error}
@@ -216,6 +228,14 @@ export function SignIn() {
         </div>
       </div>
     </div>
+  )
+}
+
+export function SignIn() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <SignInContent />
+    </Suspense>
   )
 }
 

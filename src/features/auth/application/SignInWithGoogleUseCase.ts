@@ -5,6 +5,11 @@ export class SignInWithGoogleUseCase {
     constructor(private authRepository: AuthRepository) { }
 
     async execute(): Promise<User> {
-        return this.authRepository.signInWithGoogle();
+        const user = await this.authRepository.signInWithGoogle();
+        if (!user.emailVerified) {
+            await this.authRepository.signOut();
+            throw new Error("Please verify your email address before signing in.");
+        }
+        return user;
     }
 }

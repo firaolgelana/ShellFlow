@@ -6,14 +6,18 @@ import { User } from '../domain/User';
 import { ObserveAuthStateUseCase } from '../application/ObserveAuthStateUseCase';
 import { authRepository } from '../infrastructure/firebase';
 
+import { SignOutUseCase } from '../application/SignOutUseCase';
+
 interface AuthContextType {
     user: User | null;
     loading: boolean;
+    signOut: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType>({
     user: null,
     loading: true,
+    signOut: async () => { },
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -35,20 +39,37 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         return () => unsubscribe();
     }, []);
 
+    const signOut = async () => {
+        try {
+            const signOutUseCase = new SignOutUseCase(authRepository);
+            await signOutUseCase.execute();
+            router.push('/sign-in');
+        } catch (error) {
+            console.error('Error signing out:', error);
+        }
+    };
+
     useEffect(() => {
         if (!loading) {
-            if (user && (pathname === '/sign-in' || pathname === '/sign-up')) {
-                router.push('/profile');
+            // Redirect verified users away from auth pages
+            if (user && user.emailVerified && (pathname === '/sign-in' || pathname === '/sign-up')) {
+                router.push('/dashboard');
             }
-            // Optional: Protect private routes
-            // if (!user && pathname.startsWith('/profile')) {
-            //   router.push('/login');
-            // }
+
+            // Redirect unverified users to verification page
+            if (user && !user.emailVerified && (pathname.startsWith('/profile') || pathname.startsWith('/dashboard'))) {
+                router.push('/dashboard');
+            }
+
+            // Protect private routes from unauthenticated users
+            if (!user && (pathname.startsWith('/profile') || pathname === '/verify-email' || pathname.startsWith('/dashboard'))) {
+                router.push('/sign-in');
+            }
         }
     }, [user, loading, pathname, router]);
 
     return (
-        <AuthContext.Provider value={{ user, loading }}>
+        <AuthContext.Provider value={{ user, loading, signOut }}>
             {children}
         </AuthContext.Provider>
     );

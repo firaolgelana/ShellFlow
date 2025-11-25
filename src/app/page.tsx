@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import {SignIn} from "@/features/auth/presentation/pages/sign-in/sign-in";
-import {SignUp} from "@/features/auth/presentation/pages/sign-up/sign-up";
+import { SignIn } from "@/features/auth/presentation/pages/sign-in/sign-in";
+import { SignUp } from "@/features/auth/presentation/pages/sign-up/sign-up";
 
 export default function Home() {
   const [showSignUp, setShowSignUp] = useState(false)

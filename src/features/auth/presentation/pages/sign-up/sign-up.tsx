@@ -1,7 +1,6 @@
 "use client"
 
 import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { UserPlus, Eye, EyeOff, CheckCircle2, AlertCircle } from "lucide-react"
@@ -57,7 +56,8 @@ export function SignUp() {
     try {
       const signUpUseCase = new SignUpUseCase(authRepository);
       await signUpUseCase.execute(formData.email, formData.password, formData.fullName);
-      router.push("/profile");
+      // Redirect to verification page
+      router.push("/dashboard");
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -74,7 +74,8 @@ export function SignUp() {
     try {
       const signInWithGoogleUseCase = new SignInWithGoogleUseCase(authRepository);
       await signInWithGoogleUseCase.execute();
-      router.push("/profile");
+      console.log('Google sign-in successful, goes to dashboard');
+      router.push("/dashboard");
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -196,12 +197,12 @@ export function SignUp() {
                     <div
                       key={level}
                       className={`h-1 flex-1 rounded-full transition-colors ${passwordStrength === level || (passwordStrength === "strong" && level !== "weak")
-                          ? passwordStrength === "weak"
-                            ? "bg-destructive"
-                            : passwordStrength === "medium"
-                              ? "bg-yellow-500"
-                              : "bg-green-500"
-                          : "bg-border"
+                        ? passwordStrength === "weak"
+                          ? "bg-destructive"
+                          : passwordStrength === "medium"
+                            ? "bg-yellow-500"
+                            : "bg-green-500"
+                        : "bg-border"
                         }`}
                     />
                   ))}

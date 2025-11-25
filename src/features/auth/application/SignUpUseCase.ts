@@ -5,6 +5,8 @@ export class SignUpUseCase {
     constructor(private authRepository: AuthRepository) { }
 
     async execute(email: string, password: string, name: string): Promise<User> {
-        return this.authRepository.signUp(email, password, name);
+        const user = await this.authRepository.signUp(email, password, name);
+        await this.authRepository.sendEmailVerification(user);
+        return user;
     }
 }
