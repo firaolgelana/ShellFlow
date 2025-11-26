@@ -13,9 +13,13 @@ import {
 } from '@/shared/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import { useAuth } from '@/features/auth/presentation/useAuth';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 export function Navbar() {
     const { user, signOut } = useAuth();
+    const router = useRouter();
+    const [showNotifications, setShowNotifications] = useState(false);
 
     return (
         <header className="flex h-16 items-center justify-between border-b bg-background px-6">
@@ -30,11 +34,21 @@ export function Navbar() {
                 </div>
             </div>
             <div className="flex items-center gap-4">
-                <Button variant="ghost" size="icon" className="relative">
+                <Button
+                    variant="ghost"
+                    size="icon"
+                    className="relative"
+                    onClick={() => setShowNotifications(!showNotifications)}
+                >
                     <Bell className="h-5 w-5 text-muted-foreground" />
                     <span className="absolute right-2 top-2 h-2 w-2 rounded-full bg-red-500" />
                     <span className="sr-only">Notifications</span>
                 </Button>
+                {showNotifications && (
+                    <div className="absolute right-6 top-16 w-64 rounded-md border bg-background shadow-lg p-4">
+                        <p className="text-sm text-muted-foreground">No new notifications.</p>
+                    </div>
+                )}
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -54,8 +68,8 @@ export function Navbar() {
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem>Profile</DropdownMenuItem>
-                        <DropdownMenuItem>Settings</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push('/profile')}>Profile</DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => router.push('/settings')}>Settings</DropdownMenuItem>
                         <DropdownMenuItem onClick={() => signOut()}>Log out</DropdownMenuItem>
                     </DropdownMenuContent>
                 </DropdownMenu>

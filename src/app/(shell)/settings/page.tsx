@@ -7,18 +7,15 @@ import { SecuritySettings } from '@/features/settings/presentation/components/Se
 import { AccountSettings } from '@/features/settings/presentation/components/AccountSettings';
 import { NotificationSettings } from '@/features/settings/presentation/components/NotificationSettings';
 import { ThemeSettings } from '@/features/settings/presentation/components/ThemeSettings';
-import { Shield, User, Bell, Palette, ArrowLeft } from 'lucide-react';
-import { Button } from '@/shared/components/ui/button';
-import { useRouter } from 'next/navigation';
+import { Shield, User, Bell, Palette } from 'lucide-react';
 
 export default function SettingsPage() {
     const { user, loading } = useAuth();
-    const router = useRouter();
     const [activeTab, setActiveTab] = useState('security');
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-screen">
+            <div className="flex items-center justify-center py-12">
                 <div className="text-center">
                     <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto"></div>
                     <p className="mt-4 text-muted-foreground">Loading settings...</p>
@@ -32,18 +29,9 @@ export default function SettingsPage() {
     }
 
     return (
-        <div className="container max-w-4xl mx-auto py-8 px-4">
+        <div className="space-y-6">
             {/* Header */}
-            <div className="mb-8">
-                <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => router.back()}
-                    className="mb-4"
-                >
-                    <ArrowLeft className="h-4 w-4 mr-2" />
-                    Back
-                </Button>
+            <div>
                 <h1 className="text-3xl font-bold">Settings</h1>
                 <p className="text-muted-foreground mt-2">
                     Manage your account settings and preferences

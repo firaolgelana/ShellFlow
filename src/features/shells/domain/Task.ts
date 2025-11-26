@@ -11,4 +11,5 @@ export interface Task {
     duration: number; // Duration in minutes
     userId: string;
     createdAt: Date;
+    category?: string; // New optional field for task category
 }

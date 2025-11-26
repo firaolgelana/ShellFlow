@@ -2,13 +2,14 @@
 
 import React, { useState, useMemo } from 'react';
 import { useProfile } from '@/features/profile/presentation/hooks/useProfile';
-import { DashboardLayout } from '@/features/profile/presentation/components/DashboardLayout';
 import { useRouter } from 'next/navigation';
 import { ProfileHeader } from '@/features/profile/presentation/components/ProfileHeader';
 import { TabNavigation } from '@/features/profile/presentation/components/TabNavigation';
 import { ProfileShellGrid } from '@/features/profile/presentation/components/ProfileShellGrid';
 import { FollowersList } from '@/features/profile/presentation/components/FollowersList';
 import { ProfileTab, UserProfile, ShellCard } from '@/features/profile/presentation/types';
+import { Button } from '@/shared/components/ui/button';
+import { ExternalLink } from 'lucide-react';
 
 export default function ProfilePage() {
     const { user, loading: profileLoading, error: profileError } = useProfile();
@@ -58,7 +59,7 @@ export default function ProfilePage() {
     // Show error state
     if (profileError) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
+            <div className="flex items-center justify-center py-12">
                 <div className="text-red-500 text-xl">{profileError}</div>
             </div>
         );
@@ -66,38 +67,51 @@ export default function ProfilePage() {
 
     if (profileLoading || !userProfile) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-background">
+            <div className="flex items-center justify-center py-12">
                 <div className="text-gray-500">Loading...</div>
             </div>
         );
     }
 
     return (
-        <DashboardLayout>
-            <div className="flex-1 min-h-screen bg-background pb-20 md:pb-0 overflow-y-auto">
-                <ProfileHeader
-                    user={userProfile}
-                    isOwnProfile={true}
-                    onFollowClick={() => setIsFollowing(!isFollowing)}
-                    isFollowing={isFollowing}
-                />
-
-                <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
-
-                {/* Content */}
-                <div className="max-w-4xl mx-auto px-4 py-8">
-                    {activeTab === 'daily-shells' && <ProfileShellGrid shells={shells} />}
-                    {activeTab === 'weekly-shells' && (
-                        <div className="text-center py-12 text-gray-600">No weekly shells yet</div>
-                    )}
-                    {activeTab === 'followers' && (
-                        <FollowersList users={[]} onFollowClick={handleFollowClick} isFollowingMap={followingMap} />
-                    )}
-                    {activeTab === 'following' && (
-                        <FollowersList users={[]} onFollowClick={handleFollowClick} isFollowingMap={followingMap} />
-                    )}
+        <div className="space-y-6">
+            {/* View Public Profile Button */}
+            {user?.username && (
+                <div className="flex justify-end">
+                    <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => router.push(`/${user.username}`)}
+                        className="gap-2"
+                    >
+                        <ExternalLink className="h-4 w-4" />
+                        View Public Profile
+                    </Button>
                 </div>
+            )}
+
+            <ProfileHeader
+                user={userProfile}
+                isOwnProfile={true}
+                onFollowClick={() => setIsFollowing(!isFollowing)}
+                isFollowing={isFollowing}
+            />
+
+            <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+
+            {/* Content */}
+            <div className="max-w-4xl mx-auto">
+                {activeTab === 'daily-shells' && <ProfileShellGrid shells={shells} />}
+                {activeTab === 'weekly-shells' && (
+                    <div className="text-center py-12 text-gray-600">No weekly shells yet</div>
+                )}
+                {activeTab === 'followers' && (
+                    <FollowersList users={[]} onFollowClick={handleFollowClick} isFollowingMap={followingMap} />
+                )}
+                {activeTab === 'following' && (
+                    <FollowersList users={[]} onFollowClick={handleFollowClick} isFollowingMap={followingMap} />
+                )}
             </div>
-        </DashboardLayout>
+        </div>
     );
 }
