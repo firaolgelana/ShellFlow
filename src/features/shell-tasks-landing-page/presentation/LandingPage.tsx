@@ -25,7 +25,7 @@ export function LandingPage() {
                         <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                             <span className="text-primary-foreground font-bold text-lg">✓</span>
                         </div>
-                        <span className="font-bold text-xl text-foreground">ShellTasks</span>
+                        <span className="font-bold text-xl text-foreground">ShellFlow</span>
                     </div>
                     <div className="hidden md:flex items-center gap-8">
                         <a href="#features" className="text-foreground/70 hover:text-foreground transition">
@@ -56,7 +56,7 @@ export function LandingPage() {
                                 Organize Your Day. Share Your Progress.
                             </h1>
                             <p className="text-xl text-foreground/70 text-balance">
-                                ShellTasks helps you schedule your daily routines, manage weekly tasks, and stay motivated through
+                                ShellFlow helps you schedule your daily routines, manage weekly tasks, and stay motivated through
                                 social interaction.
                             </p>
                         </div>
@@ -189,7 +189,7 @@ export function LandingPage() {
                                 name: "Sarah Chen",
                                 role: "Founder & Designer",
                                 content:
-                                    "ShellTasks completely changed how I manage my daily work. The social features keep me accountable!",
+                                    "ShellFlow completely changed how I manage my daily work. The social features keep me accountable!",
                             },
                             {
                                 name: "Marcus Rodriguez",
@@ -229,8 +229,8 @@ export function LandingPage() {
                                 <Mail className="w-5 h-5 text-primary mt-1 flex-shrink-0" />
                                 <div>
                                     <p className="font-semibold text-foreground">Email</p>
-                                    <a href="mailto:support@shelltasks.app" className="text-primary hover:underline">
-                                        support@shelltasks.app
+                                    <a href="mailto:support@shellflow.app" className="text-primary hover:underline">
+                                        support@shellflow.app
                                     </a>
                                 </div>
                             </div>
@@ -285,7 +285,7 @@ export function LandingPage() {
                             <div className="w-8 h-8 rounded-lg bg-primary flex items-center justify-center">
                                 <span className="text-primary-foreground font-bold text-lg">✓</span>
                             </div>
-                            <span className="font-bold text-foreground">ShellTasks</span>
+                            <span className="font-bold text-foreground">ShellFlow</span>
                         </div>
                         <div className="flex gap-6 justify-center text-sm text-foreground/60">
                             <a href="#" className="hover:text-foreground transition">
@@ -308,7 +308,7 @@ export function LandingPage() {
                         </div>
                     </div>
                     <div className="border-t border-border pt-8 text-center text-sm text-foreground/50">
-                        <p>© 2025 ShellTasks. All rights reserved.</p>
+                        <p>© 2025 ShellFlow. All rights reserved.</p>
                     </div>
                 </div>
             </footer>

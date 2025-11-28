@@ -5,13 +5,19 @@ import { Plus, CalendarDays, Sparkles, Calendar as CalendarIcon } from 'lucide-r
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
 import { CreateTaskDialog } from '@/features/shells/presentation/components/CreateTaskDialog';
+import { CreateWeeklyPlanDialog } from '@/features/shells/presentation/components/CreateWeeklyPlanDialog';
 
 export function QuickActions() {
     const [createTaskOpen, setCreateTaskOpen] = useState(false);
+    const [createWeeklyPlanOpen, setCreateWeeklyPlanOpen] = useState(false);
 
     const handleTaskCreated = () => {
         // Optionally refresh tasks or show a notification
         console.log('Task created successfully!');
+    };
+
+    const handleWeeklyPlanCreated = () => {
+        console.log('Weekly plan created successfully!');
     };
 
     return (
@@ -29,7 +35,12 @@ export function QuickActions() {
                         <Plus className="h-4 w-4" />
                         Add New Task
                     </Button>
-                    <Button variant="outline" className="w-full gap-2" size="lg">
+                    <Button
+                        variant="outline"
+                        className="w-full gap-2"
+                        size="lg"
+                        onClick={() => setCreateWeeklyPlanOpen(true)}
+                    >
                         <CalendarDays className="h-4 w-4" />
                         Create Weekly Plan
                     </Button>
@@ -48,6 +59,12 @@ export function QuickActions() {
                 open={createTaskOpen}
                 onOpenChange={setCreateTaskOpen}
                 onSuccess={handleTaskCreated}
+            />
+
+            <CreateWeeklyPlanDialog
+                open={createWeeklyPlanOpen}
+                onOpenChange={setCreateWeeklyPlanOpen}
+                onSuccess={handleWeeklyPlanCreated}
             />
         </>
     );
