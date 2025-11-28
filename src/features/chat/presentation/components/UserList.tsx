@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui
 import { ScrollArea } from '@/shared/components/ui/scroll-area';
 import { useAuth } from '@/features/auth/presentation/useAuth';
 import { FirebaseChatRepository } from '@/features/chat/infrastructure/FirebaseChatRepository';
+import { FirebaseFollowRepository } from '@/features/social/infrastructure/FirebaseFollowRepository';
 
 interface UserListProps {
     onChatCreated: (chatRoomId: string) => void;
@@ -20,6 +21,7 @@ export const UserList: React.FC<UserListProps> = ({ onChatCreated }) => {
 
     // Dependency injection (ideally should be passed via props or context)
     const chatRepository = new FirebaseChatRepository();
+    const followRepository = new FirebaseFollowRepository();
     const getAllUsers = new GetAllUsers(chatRepository);
     const createChatRoom = new CreateChatRoom(chatRepository);
 
@@ -27,11 +29,21 @@ export const UserList: React.FC<UserListProps> = ({ onChatCreated }) => {
         const fetchUsers = async () => {
             setLoading(true);
             try {
+                if (!currentUser) return;
+
+                // Get followers of the current user
+                const followerIds = await followRepository.getFollowers(currentUser.id);
+
+                // Fetch all users
                 const fetchedUsers = await getAllUsers.execute();
-                // Filter out current user
-                // Deduplicate by email to handle cases where users re-registered and old records remain
+
+                // Filter to show only followers
                 const uniqueUsers = Array.from(new Map(fetchedUsers.map(user => [user.email, user])).values());
-                setUsers(uniqueUsers.filter(u => u.id !== currentUser?.id));
+                const followerUsers = uniqueUsers.filter(u =>
+                    u.id !== currentUser.id && followerIds.includes(u.id)
+                );
+
+                setUsers(followerUsers);
             } catch (error) {
                 console.error("Failed to fetch users", error);
             } finally {

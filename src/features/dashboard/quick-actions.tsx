@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import { Plus, CalendarDays, Sparkles, Calendar as CalendarIcon } from 'lucide-react';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
@@ -48,10 +49,12 @@ export function QuickActions() {
                         <Sparkles className="h-4 w-4" />
                         Auto-Schedule
                     </Button>
-                    <Button variant="ghost" className="w-full gap-2" size="lg">
-                        <CalendarIcon className="h-4 w-4" />
-                        View Calendar
-                    </Button>
+                    <Link href="/calendar" className="w-full">
+                        <Button variant="ghost" className="w-full gap-2" size="lg">
+                            <CalendarIcon className="h-4 w-4" />
+                            View Calendar
+                        </Button>
+                    </Link>
                 </CardContent>
             </Card>
 

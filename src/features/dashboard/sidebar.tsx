@@ -9,6 +9,7 @@ import {
     Grid,
     MessageSquare,
     User,
+    Users,
     Settings,
     LogOut,
 } from 'lucide-react';
@@ -22,6 +23,7 @@ const navItems = [
     { name: 'Tasks', href: '/tasks', icon: CheckSquare },
     { name: 'Calendar', href: '/calendar', icon: Calendar },
     { name: 'Categories', href: '/categories', icon: Grid },
+    { name: 'Users', href: '/users', icon: Users },
     { name: 'Messages', href: '/chat', icon: MessageSquare },
     { name: 'Profile', href: '/profile', icon: User },
     { name: 'Settings', href: '/settings', icon: Settings },

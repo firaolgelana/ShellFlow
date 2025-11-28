@@ -2,6 +2,7 @@
 
 import React, { useState, useMemo } from 'react';
 import { useProfile } from '@/features/profile/presentation/hooks/useProfile';
+import { useFollowStats } from '@/features/social/presentation/hooks/useFollowStats';
 import { useRouter } from 'next/navigation';
 import { ProfileHeader } from '@/features/profile/presentation/components/ProfileHeader';
 import { TabNavigation } from '@/features/profile/presentation/components/TabNavigation';
@@ -14,6 +15,7 @@ import { ExternalLink } from 'lucide-react';
 
 export default function ProfilePage() {
     const { user, loading: profileLoading, error: profileError, refetch } = useProfile();
+    const { stats: followStats } = useFollowStats(user?.id);
     const router = useRouter();
 
     const [activeTab, setActiveTab] = useState<ProfileTab>('daily-shells');
@@ -38,11 +40,11 @@ export default function ProfilePage() {
             avatar: user.photoURL || undefined,
             bio: user.bio || undefined,
             streakCount: 0, // TODO: Calculate from actual data
-            followers: 0, // TODO: Get from followers collection
-            following: 0, // TODO: Get from following collection
+            followers: followStats.followerCount,
+            following: followStats.followingCount,
             createdAt: new Date(), // TODO: Get from user document
         };
-    }, [user]);
+    }, [user, followStats]);
 
     // Map domain tasks to presentation tasks and shells
     const shells: ShellCard[] = useMemo(() => {

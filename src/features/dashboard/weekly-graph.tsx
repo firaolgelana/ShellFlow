@@ -10,9 +10,28 @@ import {
     ResponsiveContainer,
 } from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { mockWeeklyStats } from '@/lib/mock-data';
+import { useTaskStats } from '@/features/shells/presentation/hooks/useTaskStats';
+import { useAuth } from '@/features/auth/presentation/useAuth';
 
 export function WeeklyGraph() {
+    const { user } = useAuth();
+    const { stats, loading } = useTaskStats(user?.id);
+
+    if (loading) {
+        return (
+            <Card className="shadow-sm">
+                <CardHeader>
+                    <CardTitle className="text-lg font-semibold">Weekly Progress</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <div className="w-full h-[300px] flex items-center justify-center bg-muted/20 rounded-lg">
+                        <p className="text-muted-foreground">Loading chart...</p>
+                    </div>
+                </CardContent>
+            </Card>
+        );
+    }
+
     return (
         <Card className="shadow-sm">
             <CardHeader>
@@ -21,7 +40,7 @@ export function WeeklyGraph() {
             <CardContent>
                 <div className="w-full">
                     <ResponsiveContainer width="100%" height={300}>
-                        <BarChart data={mockWeeklyStats}>
+                        <BarChart data={stats.weeklyProgress}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
                             <XAxis
                                 dataKey="day"

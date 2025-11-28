@@ -11,14 +11,26 @@ import {
 } from '@/shared/components/ui/table';
 import { Input } from '@/shared/components/ui/input';
 import { Badge } from '@/shared/components/ui/badge';
-import { Search, Clock, Calendar } from 'lucide-react';
+import { Search, Clock, Calendar, CheckCircle2 } from 'lucide-react';
 import { useRecentTasks } from '@/features/shells/presentation/hooks/useRecentTasks';
+import { useUpdateTaskStatus } from '@/features/shells/presentation/hooks/useUpdateTaskStatus';
 import { useAuth } from '@/features/auth/presentation/useAuth';
 
 export function TaskList() {
     const { user } = useAuth();
-    const { tasks, loading, error } = useRecentTasks(user?.id, 5);
+    const { tasks, loading, error, reload } = useRecentTasks(user?.id, 5);
+    const { updateStatus } = useUpdateTaskStatus();
     const [searchQuery, setSearchQuery] = useState('');
+
+    const handleStatusToggle = async (taskId: string, currentStatus: string) => {
+        const newStatus = currentStatus === 'completed' ? 'pending' : 'completed';
+        try {
+            await updateStatus(taskId, newStatus);
+            reload(); // Refresh list to show updated status
+        } catch (error) {
+            console.error("Failed to toggle status", error);
+        }
+    };
 
     const filteredTasks = tasks.filter(task =>
         task.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -72,7 +84,9 @@ export function TaskList() {
                 <Table>
                     <TableHeader>
                         <TableRow>
+                            <TableHead className="w-[50px]">Status</TableHead>
                             <TableHead>Task</TableHead>
+                            <TableHead>Category</TableHead>
                             <TableHead>Date</TableHead>
                             <TableHead>Time</TableHead>
                             <TableHead>Duration</TableHead>
@@ -82,7 +96,22 @@ export function TaskList() {
                         {filteredTasks.map((task) => (
                             <TableRow key={task.id}>
                                 <TableCell>
-                                    <div>
+                                    <button
+                                        onClick={() => handleStatusToggle(task.id, task.status)}
+                                        className={`rounded-full p-1 transition-colors ${task.status === 'completed'
+                                            ? 'text-green-500 hover:text-green-600'
+                                            : 'text-muted-foreground hover:text-primary'
+                                            }`}
+                                    >
+                                        {task.status === 'completed' ? (
+                                            <CheckCircle2 className="h-5 w-5" />
+                                        ) : (
+                                            <div className="h-5 w-5 rounded-full border-2 border-current" />
+                                        )}
+                                    </button>
+                                </TableCell>
+                                <TableCell>
+                                    <div className={task.status === 'completed' ? 'opacity-50 line-through' : ''}>
                                         <div className="font-medium">{task.title}</div>
                                         {task.description && (
                                             <div className="text-sm text-muted-foreground line-clamp-1">
@@ -90,6 +119,11 @@ export function TaskList() {
                                             </div>
                                         )}
                                     </div>
+                                </TableCell>
+                                <TableCell>
+                                    <Badge variant="secondary" className="capitalize">
+                                        {task.category || 'work'}
+                                    </Badge>
                                 </TableCell>
                                 <TableCell className="text-muted-foreground">
                                     <div className="flex items-center gap-2">

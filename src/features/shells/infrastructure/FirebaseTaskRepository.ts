@@ -30,6 +30,8 @@ export class FirebaseTaskRepository implements TaskRepository {
                 duration: data.duration || 30,
                 userId: data.userId,
                 createdAt: (data.createdAt as Timestamp).toDate(),
+                category: data.category || 'work',
+                status: data.status || 'pending',
             } as Task;
         });
     }
@@ -62,6 +64,8 @@ export class FirebaseTaskRepository implements TaskRepository {
                     duration: data.duration || 30,
                     userId: data.userId,
                     createdAt: (data.createdAt as Timestamp).toDate(),
+                    category: data.category || 'work',
+                    status: data.status || 'pending',
                 } as Task;
             });
         } catch (error: any) {
@@ -96,6 +100,19 @@ export class FirebaseTaskRepository implements TaskRepository {
             duration: task.duration,
             userId: task.userId,
             createdAt: Timestamp.fromDate(task.createdAt),
+            category: task.category || 'work',
+            status: task.status || 'pending',
         });
+    }
+
+    /**
+     * Updates the status of a task.
+     * @param taskId The ID of the task to update.
+     * @param status The new status.
+     */
+    async updateTaskStatus(taskId: string, status: Task['status']): Promise<void> {
+        const { doc, updateDoc } = await import('firebase/firestore');
+        const taskRef = doc(db, this.collectionName, taskId);
+        await updateDoc(taskRef, { status });
     }
 }

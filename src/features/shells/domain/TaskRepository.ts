@@ -27,4 +27,12 @@ export interface TaskRepository {
      * @returns A promise that resolves when the task is created.
      */
     createTask(task: Task): Promise<void>;
+
+    /**
+     * Updates the status of a specific task.
+     * @param taskId The ID of the task to update.
+     * @param status The new status for the task.
+     * @returns A promise that resolves when the task status is updated.
+     */
+    updateTaskStatus(taskId: string, status: Task['status']): Promise<void>;
 }

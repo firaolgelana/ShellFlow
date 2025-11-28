@@ -12,4 +12,5 @@ export interface Task {
     userId: string;
     createdAt: Date;
     category?: string; // New optional field for task category
+    status: 'pending' | 'completed' | 'overdue';
 }

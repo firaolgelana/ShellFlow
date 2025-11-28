@@ -1,7 +1,7 @@
 import { User } from '@/features/auth/domain/User';
 import { UserRepository } from '@/features/profile/domain/UserRepository';
 import { db } from '@/features/auth/infrastructure/firebase/firebaseConfig';
-import { collection, query, where, getDocs, doc, getDoc, updateDoc, Timestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, getDoc, setDoc, Timestamp } from 'firebase/firestore';
 
 /**
  * Firebase implementation of UserRepository.
@@ -94,12 +94,12 @@ export class FirebaseUserRepository implements UserRepository {
                 throw new Error('Username is already taken');
             }
 
-            // Update the user document
+            // Update the user document (creates if doesn't exist)
             const userRef = doc(db, this.collectionName, userId);
-            await updateDoc(userRef, {
+            await setDoc(userRef, {
                 username: username,
                 updatedAt: Timestamp.now(),
-            });
+            }, { merge: true });
         } catch (error) {
             if (error instanceof Error) {
                 throw error;
@@ -126,7 +126,7 @@ export class FirebaseUserRepository implements UserRepository {
                 updateData.displayName = data.displayName;
             }
 
-            await updateDoc(userRef, updateData);
+            await setDoc(userRef, updateData, { merge: true });
         } catch (error) {
             console.error('Error updating profile:', error);
             throw new Error('Failed to update profile');

@@ -25,6 +25,7 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
     const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
     const [startTime, setStartTime] = useState('09:00');
     const [duration, setDuration] = useState(30);
+    const [category, setCategory] = useState('work');
     const [successMessage, setSuccessMessage] = useState('');
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -36,7 +37,7 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
 
         try {
             const taskDate = new Date(date);
-            await createTask(user.id, title, description, taskDate, startTime, duration);
+            await createTask(user.id, title, description, taskDate, startTime, duration, category);
 
             setSuccessMessage('Task created successfully!');
 
@@ -46,6 +47,7 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
             setDate(new Date().toISOString().split('T')[0]);
             setStartTime('09:00');
             setDuration(30);
+            setCategory('work');
 
             // Close dialog after a short delay
             setTimeout(() => {
@@ -66,6 +68,7 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
             setDate(new Date().toISOString().split('T')[0]);
             setStartTime('09:00');
             setDuration(30);
+            setCategory('work');
             setSuccessMessage('');
             onOpenChange(false);
         }
@@ -148,25 +151,42 @@ export function CreateTaskDialog({ open, onOpenChange, onSuccess }: CreateTaskDi
                         </div>
                     </div>
 
-                    {/* Duration */}
-                    <div className="space-y-2">
-                        <Label htmlFor="duration" className="flex items-center gap-2">
-                            <Timer className="h-4 w-4" />
-                            Duration (minutes) *
-                        </Label>
-                        <Input
-                            id="duration"
-                            type="number"
-                            min="1"
-                            max="1440"
-                            value={duration}
-                            onChange={(e) => setDuration(parseInt(e.target.value) || 30)}
-                            required
-                            disabled={loading}
-                        />
-                        <p className="text-xs text-muted-foreground">
-                            {duration} minutes ({Math.floor(duration / 60)}h {duration % 60}m)
-                        </p>
+                    {/* Duration and Category Row */}
+                    <div className="grid grid-cols-2 gap-4">
+                        {/* Duration */}
+                        <div className="space-y-2">
+                            <Label htmlFor="duration" className="flex items-center gap-2">
+                                <Timer className="h-4 w-4" />
+                                Duration (min) *
+                            </Label>
+                            <Input
+                                id="duration"
+                                type="number"
+                                min="1"
+                                max="1440"
+                                value={duration}
+                                onChange={(e) => setDuration(parseInt(e.target.value) || 30)}
+                                required
+                                disabled={loading}
+                            />
+                        </div>
+
+                        {/* Category */}
+                        <div className="space-y-2">
+                            <Label htmlFor="category">Category</Label>
+                            <select
+                                id="category"
+                                className="flex h-10 w-full items-center justify-between rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                                value={category}
+                                onChange={(e) => setCategory(e.target.value)}
+                                disabled={loading}
+                            >
+                                <option value="work">Work</option>
+                                <option value="personal">Personal</option>
+                                <option value="learning">Learning</option>
+                                <option value="health">Health</option>
+                            </select>
+                        </div>
                     </div>
 
                     {/* Error Message */}
