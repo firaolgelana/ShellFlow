@@ -32,15 +32,26 @@ export const FollowersList: React.FC<FollowersListProps> = ({
                 >
                     <div className="flex items-center gap-3">
                         <Avatar className="w-10 h-10">
-                            <AvatarImage src={user.avatar} alt={user.username} />
-                            <AvatarFallback>{user.username.charAt(0).toUpperCase()}</AvatarFallback>
+                            <AvatarImage src={user.avatar} alt={user.displayName || user.username} />
+                            <AvatarFallback>
+                                {(user.displayName || user.username || '?').charAt(0).toUpperCase()}
+                            </AvatarFallback>
                         </Avatar>
                         <div>
-                            <Link href={`/profile/${user.id}`}>
-                                <h3 className="font-semibold text-gray-900 hover:text-indigo-600">
-                                    {user.username}
+                            {user.username ? (
+                                <Link href={`/${user.username}`}>
+                                    <h3 className="font-semibold text-gray-900 hover:text-indigo-600">
+                                        {user.displayName || user.username}
+                                    </h3>
+                                </Link>
+                            ) : (
+                                <h3 className="font-semibold text-gray-900">
+                                    {user.displayName || 'Unknown User'}
                                 </h3>
-                            </Link>
+                            )}
+                            {user.username && (
+                                <p className="text-xs text-gray-500">@{user.username}</p>
+                            )}
                             <p className="text-sm text-gray-600">{user.followers} followers</p>
                         </div>
                     </div>

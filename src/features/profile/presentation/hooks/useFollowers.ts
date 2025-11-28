@@ -1,0 +1,44 @@
+import { useState, useEffect } from 'react';
+import { User } from '@/features/auth/domain/User';
+import { GetFollowersWithDetailsUseCase } from '@/features/social/application/GetFollowersWithDetailsUseCase';
+import { FirebaseFollowRepository } from '@/features/social/infrastructure/FirebaseFollowRepository';
+import { FirebaseUserRepository } from '@/features/profile/infrastructure/FirebaseUserRepository';
+
+const followRepository = new FirebaseFollowRepository();
+const userRepository = new FirebaseUserRepository();
+const getFollowersUseCase = new GetFollowersWithDetailsUseCase(followRepository, userRepository);
+
+/**
+ * Hook to fetch followers with full user details.
+ * @param userId - The user ID to fetch followers for
+ */
+export function useFollowers(userId: string | undefined) {
+    const [followers, setFollowers] = useState<User[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+
+    useEffect(() => {
+        if (!userId) {
+            setLoading(false);
+            return;
+        }
+
+        const fetchFollowers = async () => {
+            try {
+                setLoading(true);
+                setError(null);
+                const fetchedFollowers = await getFollowersUseCase.execute(userId);
+                setFollowers(fetchedFollowers);
+            } catch (err) {
+                console.error('Error fetching followers:', err);
+                setError(err instanceof Error ? err.message : 'Failed to fetch followers');
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchFollowers();
+    }, [userId]);
+
+    return { followers, loading, error };
+}

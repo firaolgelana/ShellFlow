@@ -1,11 +1,23 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useMemo } from 'react';
 import { User } from '@/features/auth/domain/User';
+import { Task } from '@/features/shells/domain/Task';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
-import { Badge } from '@/shared/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { Calendar, Users } from 'lucide-react';
+import { Calendar } from 'lucide-react';
+import { TabNavigation } from './TabNavigation';
+import { ProfileShellGrid } from './ProfileShellGrid';
+import { FollowersList } from './FollowersList';
+import { ProfileTab, ShellCard, UserProfile } from '../types';
+import { useDailyTasks } from '../hooks/useDailyTasks';
+import { useWeeklyTasks } from '../hooks/useWeeklyTasks';
+import { useFollowers } from '../hooks/useFollowers';
+import { useFollowing } from '../hooks/useFollowing';
+import { useProfile } from '../hooks/useProfile';
+import { FirebaseFollowRepository } from '@/features/social/infrastructure/FirebaseFollowRepository';
+
+const followRepository = new FirebaseFollowRepository();
 
 interface PublicProfileViewProps {
     user: User;
@@ -16,6 +28,168 @@ interface PublicProfileViewProps {
  * Shows avatar, username, bio, and public activity.
  */
 export function PublicProfileView({ user }: PublicProfileViewProps) {
+    const [activeTab, setActiveTab] = useState<ProfileTab>('daily-shells');
+    const [isFollower, setIsFollower] = useState<boolean | null>(null);
+    const [followingMap, setFollowingMap] = useState<Record<string, boolean>>({});
+
+    // Get current user to check if they're a follower
+    const { user: currentUser } = useProfile();
+
+    // Fetch data for each tab
+    const { tasks: dailyTasks, loading: dailyLoading } = useDailyTasks(user.id);
+    const { tasks: weeklyTasks, loading: weeklyLoading } = useWeeklyTasks(user.id);
+    const { followers, loading: followersLoading } = useFollowers(user.id);
+    const { following, loading: followingLoading } = useFollowing(user.id);
+
+    // Check if current user is a follower
+    React.useEffect(() => {
+        if (currentUser?.id && user.id) {
+            followRepository.isFollowing(currentUser.id, user.id)
+                .then(setIsFollower)
+                .catch(err => {
+                    console.error('Error checking follow status:', err);
+                    setIsFollower(false);
+                });
+        }
+    }, [currentUser?.id, user.id]);
+
+    // Helper function to map Task to ShellCard
+    const mapTasksToShells = (tasks: Task[]): ShellCard[] => {
+        const userProfile: UserProfile = {
+            id: user.id,
+            username: user.username,
+            displayName: user.displayName || user.email.split('@')[0],
+            email: user.email,
+            avatar: user.photoURL,
+            bio: user.bio,
+            streakCount: 0,
+            followers: 0,
+            following: 0,
+            createdAt: new Date(),
+        };
+
+        // Group tasks by date
+        const tasksByDate = tasks.reduce((acc, task) => {
+            const dateKey = task.date.toISOString().split('T')[0];
+            if (!acc[dateKey]) {
+                acc[dateKey] = [];
+            }
+            acc[dateKey].push(task);
+            return acc;
+        }, {} as Record<string, Task[]>);
+
+        // Create a ShellCard for each date
+        return Object.entries(tasksByDate).map(([dateKey, dateTasks]) => ({
+            shell: {
+                id: dateKey,
+                userId: user.id,
+                title: `Tasks for ${new Date(dateKey).toLocaleDateString()}`,
+                date: dateKey,
+                tasks: dateTasks.map(task => ({
+                    id: task.id,
+                    title: task.title,
+                    time: task.startTime,
+                    duration: task.duration,
+                    category: (task.category || 'work') as any,
+                    icon: '📝',
+                    status: task.status === 'completed' ? 'done' : task.status === 'pending' ? 'in-progress' : 'missed',
+                    description: task.description,
+                })),
+                visibility: 'public' as const,
+                createdAt: new Date(),
+                updatedAt: new Date(),
+            },
+            user: userProfile,
+            likes: 0,
+            isLiked: false,
+            comments: 0,
+        }));
+    };
+
+    // Helper function to map User to UserProfile
+    const mapUserToUserProfile = (users: User[]): UserProfile[] => {
+        return users.map(u => ({
+            id: u.id,
+            username: u.username,
+            displayName: u.displayName || u.email.split('@')[0],
+            email: u.email,
+            avatar: u.photoURL,
+            bio: u.bio,
+            streakCount: 0,
+            followers: 0,
+            following: 0,
+            createdAt: new Date(),
+        }));
+    };
+
+    const dailyShells = useMemo(() => mapTasksToShells(dailyTasks), [dailyTasks]);
+    const weeklyShells = useMemo(() => mapTasksToShells(weeklyTasks), [weeklyTasks]);
+    const followerProfiles = useMemo(() => mapUserToUserProfile(followers), [followers]);
+    const followingProfiles = useMemo(() => mapUserToUserProfile(following), [following]);
+
+    const handleFollowClick = (userId: string) => {
+        setFollowingMap((prev) => ({
+            ...prev,
+            [userId]: !prev[userId],
+        }));
+    };
+
+    // Render content based on follower status
+    const renderContent = () => {
+        // If we're still checking follower status
+        if (isFollower === null) {
+            return (
+                <div className="text-center py-8 text-muted-foreground">
+                    <p>Loading...</p>
+                </div>
+            );
+        }
+
+        // If user is not a follower, show privacy message
+        if (!isFollower && currentUser?.id !== user.id) {
+            return (
+                <div className="text-center py-8 text-muted-foreground">
+                    <p>This content is only visible to followers.</p>
+                    <p className="text-sm mt-2">Follow this user to see their shells and activity.</p>
+                </div>
+            );
+        }
+
+        // User is a follower or viewing their own profile, show content
+        return (
+            <>
+                {activeTab === 'daily-shells' && (
+                    dailyLoading ? (
+                        <div className="text-center py-12 text-gray-600">Loading daily tasks...</div>
+                    ) : (
+                        <ProfileShellGrid shells={dailyShells} />
+                    )
+                )}
+                {activeTab === 'weekly-shells' && (
+                    weeklyLoading ? (
+                        <div className="text-center py-12 text-gray-600">Loading weekly tasks...</div>
+                    ) : (
+                        <ProfileShellGrid shells={weeklyShells} />
+                    )
+                )}
+                {activeTab === 'followers' && (
+                    followersLoading ? (
+                        <div className="text-center py-12 text-gray-600">Loading followers...</div>
+                    ) : (
+                        <FollowersList users={followerProfiles} onFollowClick={handleFollowClick} isFollowingMap={followingMap} />
+                    )
+                )}
+                {activeTab === 'following' && (
+                    followingLoading ? (
+                        <div className="text-center py-12 text-gray-600">Loading following...</div>
+                    ) : (
+                        <FollowersList users={followingProfiles} onFollowClick={handleFollowClick} isFollowingMap={followingMap} />
+                    )
+                )}
+            </>
+        );
+    };
+
     return (
         <div className="space-y-6">
             {/* Profile Header */}
@@ -62,17 +236,13 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
                 </CardContent>
             </Card>
 
-            {/* Public Activity */}
-            <Card>
-                <CardHeader>
-                    <CardTitle>Public Activity</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div className="text-center py-8 text-muted-foreground">
-                        <p>No public activity yet.</p>
-                    </div>
-                </CardContent>
-            </Card>
+            {/* Tab Navigation */}
+            <TabNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+
+            {/* Content */}
+            <div className="max-w-4xl mx-auto">
+                {renderContent()}
+            </div>
         </div>
     );
 }

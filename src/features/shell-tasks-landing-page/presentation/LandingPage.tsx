@@ -187,7 +187,7 @@ export function LandingPage() {
                         {[
                             {
                                 name: "Sarah Chen",
-                                role: "Founder & Designer",
+                                role: "Designer",
                                 content:
                                     "ShellFlow completely changed how I manage my daily work. The social features keep me accountable!",
                             },
