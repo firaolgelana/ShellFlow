@@ -25,4 +25,9 @@ export interface UserRepository {
      * Check if a username is available.
      */
     isUsernameAvailable(username: string): Promise<boolean>;
+
+    /**
+     * Update user profile information (bio, displayName).
+     */
+    updateProfile(userId: string, data: { bio?: string; displayName?: string }): Promise<void>;
 }

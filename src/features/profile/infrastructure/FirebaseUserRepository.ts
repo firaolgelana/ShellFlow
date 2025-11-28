@@ -29,6 +29,7 @@ export class FirebaseUserRepository implements UserRepository {
                 photoURL: data.photoURL || undefined,
                 emailVerified: data.emailVerified || false,
                 username: data.username || undefined,
+                bio: data.bio || undefined,
             };
         } catch (error) {
             console.error('Error fetching user by ID:', error);
@@ -60,6 +61,7 @@ export class FirebaseUserRepository implements UserRepository {
                 photoURL: data.photoURL || undefined,
                 emailVerified: data.emailVerified || false,
                 username: data.username || undefined,
+                bio: data.bio || undefined,
             };
         } catch (error) {
             console.error('Error fetching user by username:', error);
@@ -104,6 +106,30 @@ export class FirebaseUserRepository implements UserRepository {
             }
             console.error('Error updating username:', error);
             throw new Error('Failed to update username');
+        }
+    }
+
+    /**
+     * Update user profile information (bio, displayName).
+     */
+    async updateProfile(userId: string, data: { bio?: string; displayName?: string }): Promise<void> {
+        try {
+            const userRef = doc(db, this.collectionName, userId);
+            const updateData: Record<string, any> = {
+                updatedAt: Timestamp.now(),
+            };
+
+            if (data.bio !== undefined) {
+                updateData.bio = data.bio;
+            }
+            if (data.displayName !== undefined) {
+                updateData.displayName = data.displayName;
+            }
+
+            await updateDoc(userRef, updateData);
+        } catch (error) {
+            console.error('Error updating profile:', error);
+            throw new Error('Failed to update profile');
         }
     }
 }

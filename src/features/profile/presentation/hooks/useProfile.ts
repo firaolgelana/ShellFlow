@@ -1,34 +1,36 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { User } from '@/features/auth/domain/User';
 import { GetUserProfileUseCase } from '@/features/profile/application/GetUserProfileUseCase';
 import { FirebaseAuthRepository } from '@/features/auth/infrastructure/FirebaseAuthRepository';
 
 /**
  * Hook to fetch and manage the user profile.
- * @returns The user profile, loading state, and error state.
+ * @returns The user profile, loading state, error state, and refetch function.
  */
 export const useProfile = () => {
     const [user, setUser] = useState<User | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 
-    useEffect(() => {
-        const fetchProfile = async () => {
-            try {
-                const authRepo = new FirebaseAuthRepository();
-                const getUserProfileUseCase = new GetUserProfileUseCase(authRepo);
-                const currentUser = await getUserProfileUseCase.execute();
-                setUser(currentUser);
-            } catch (err) {
-                setError('Failed to load profile');
-                console.error(err);
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchProfile();
+    const fetchProfile = useCallback(async () => {
+        try {
+            setLoading(true);
+            const authRepo = new FirebaseAuthRepository();
+            const getUserProfileUseCase = new GetUserProfileUseCase(authRepo);
+            const currentUser = await getUserProfileUseCase.execute();
+            setUser(currentUser);
+            setError(null);
+        } catch (err) {
+            setError('Failed to load profile');
+            console.error(err);
+        } finally {
+            setLoading(false);
+        }
     }, []);
 
-    return { user, loading, error };
+    useEffect(() => {
+        fetchProfile();
+    }, [fetchProfile]);
+
+    return { user, loading, error, refetch: fetchProfile };
 };

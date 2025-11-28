@@ -20,6 +20,8 @@ function SignInContent() {
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [phone, setPhone] = useState("")
+  const [verificationCode, setVerificationCode] = useState("")
   const [error, setError] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -188,6 +190,8 @@ function SignInContent() {
                 <Input
                   type="tel"
                   placeholder="+1 (555) 000-0000"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
                   className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm"
                 />
               </div>
@@ -202,6 +206,8 @@ function SignInContent() {
                   type="text"
                   placeholder="000000"
                   maxLength={6}
+                  value={verificationCode}
+                  onChange={(e) => setVerificationCode(e.target.value)}
                   className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent shadow-sm text-center tracking-widest"
                 />
                 <p className="text-xs text-muted-foreground mt-2">✓ Password must be 8+ characters</p>

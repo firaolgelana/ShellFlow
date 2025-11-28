@@ -43,6 +43,12 @@ export function PublicProfileView({ user }: PublicProfileViewProps) {
                                 {user.email}
                             </p>
 
+                            {user.bio && (
+                                <p className="text-foreground mb-4">
+                                    {user.bio}
+                                </p>
+                            )}
+
                             <div className="flex flex-wrap gap-4 justify-center md:justify-start">
                                 <div className="flex items-center gap-2 text-sm">
                                     <Calendar className="h-4 w-4 text-muted-foreground" />

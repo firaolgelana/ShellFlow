@@ -5,4 +5,5 @@ export interface User {
     photoURL?: string;
     emailVerified: boolean;
     username?: string; // Unique username for public profile access
+    bio?: string; // User biography for profile
 }

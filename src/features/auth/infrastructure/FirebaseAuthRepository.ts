@@ -156,15 +156,54 @@ export class FirebaseAuthRepository implements AuthRepository {
     }
 
     observeAuthState(callback: (user: User | null) => void): () => void {
-        return onAuthStateChanged(auth, (firebaseUser) => {
-            const user = firebaseUser ? this.mapFirebaseUserToUser(firebaseUser) : null;
+        return onAuthStateChanged(auth, async (firebaseUser) => {
+            if (!firebaseUser) {
+                callback(null);
+                return;
+            }
+
+            let user = this.mapFirebaseUserToUser(firebaseUser);
+            try {
+                const userDoc = await getDoc(doc(db, 'users', user.id));
+                if (userDoc.exists()) {
+                    const data = userDoc.data();
+                    user = {
+                        ...user,
+                        username: data.username,
+                        bio: data.bio,
+                    };
+                }
+            } catch (error) {
+                console.error('Error fetching user data in observeAuthState:', error);
+            }
             callback(user);
         });
     }
 
     async getCurrentUser(): Promise<User | null> {
         await auth.authStateReady();
-        return auth.currentUser ? this.mapFirebaseUserToUser(auth.currentUser) : null;
+        if (!auth.currentUser) return null;
+
+        const firebaseUser = auth.currentUser;
+        let user = this.mapFirebaseUserToUser(firebaseUser);
+
+        try {
+            // Fetch additional data from Firestore
+            const userDoc = await getDoc(doc(db, 'users', user.id));
+            if (userDoc.exists()) {
+                const data = userDoc.data();
+                user = {
+                    ...user,
+                    username: data.username,
+                    bio: data.bio,
+                };
+            }
+        } catch (error) {
+            console.error('Error fetching user data from Firestore:', error);
+            // Continue with basic auth data if Firestore fails
+        }
+
+        return user;
     }
 
     async linkPassword(password: string): Promise<void> {

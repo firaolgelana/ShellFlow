@@ -32,7 +32,8 @@ export interface Shell {
 
 export interface UserProfile {
     id: string;
-    username: string;
+    username?: string; // @username handle for public profile URL
+    displayName: string; // Display name shown in UI
     email: string;
     avatar?: string;
     bio?: string;

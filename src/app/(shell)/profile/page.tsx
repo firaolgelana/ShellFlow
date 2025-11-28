@@ -7,17 +7,19 @@ import { ProfileHeader } from '@/features/profile/presentation/components/Profil
 import { TabNavigation } from '@/features/profile/presentation/components/TabNavigation';
 import { ProfileShellGrid } from '@/features/profile/presentation/components/ProfileShellGrid';
 import { FollowersList } from '@/features/profile/presentation/components/FollowersList';
+import { EditProfileDialog } from '@/features/profile/presentation/components/EditProfileDialog';
 import { ProfileTab, UserProfile, ShellCard } from '@/features/profile/presentation/types';
 import { Button } from '@/shared/components/ui/button';
 import { ExternalLink } from 'lucide-react';
 
 export default function ProfilePage() {
-    const { user, loading: profileLoading, error: profileError } = useProfile();
+    const { user, loading: profileLoading, error: profileError, refetch } = useProfile();
     const router = useRouter();
 
     const [activeTab, setActiveTab] = useState<ProfileTab>('daily-shells');
     const [isFollowing, setIsFollowing] = useState(false);
     const [followingMap, setFollowingMap] = useState<Record<string, boolean>>({});
+    const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
 
     // Redirect to sign-in if not authenticated
     if (!profileLoading && !user) {
@@ -30,14 +32,15 @@ export default function ProfilePage() {
         if (!user) return null;
         return {
             id: user.id,
-            username: user.displayName || user.email.split('@')[0],
+            username: user.username, // Optional @username handle
+            displayName: user.displayName || user.email.split('@')[0], // Fallback to email prefix
             email: user.email,
             avatar: user.photoURL || undefined,
-            bio: 'Productivity enthusiast • Full-stack developer', // Mock data
-            streakCount: 45, // Mock data
-            followers: 1234, // Mock data
-            following: 456, // Mock data
-            createdAt: new Date(), // Mock data
+            bio: user.bio || undefined,
+            streakCount: 0, // TODO: Calculate from actual data
+            followers: 0, // TODO: Get from followers collection
+            following: 0, // TODO: Get from following collection
+            createdAt: new Date(), // TODO: Get from user document
         };
     }, [user]);
 
@@ -54,6 +57,15 @@ export default function ProfilePage() {
             ...prev,
             [userId]: !prev[userId],
         }));
+    };
+
+    const handleEditProfile = () => {
+        setIsEditDialogOpen(true);
+    };
+
+    const handleProfileUpdated = () => {
+        // Refetch user data to show updated profile
+        refetch();
     };
 
     // Show error state
@@ -93,6 +105,7 @@ export default function ProfilePage() {
             <ProfileHeader
                 user={userProfile}
                 isOwnProfile={true}
+                onEditClick={handleEditProfile}
                 onFollowClick={() => setIsFollowing(!isFollowing)}
                 isFollowing={isFollowing}
             />
@@ -112,6 +125,19 @@ export default function ProfilePage() {
                     <FollowersList users={[]} onFollowClick={handleFollowClick} isFollowingMap={followingMap} />
                 )}
             </div>
+
+            {/* Edit Profile Dialog */}
+            {user && (
+                <EditProfileDialog
+                    open={isEditDialogOpen}
+                    onOpenChange={setIsEditDialogOpen}
+                    userId={user.id}
+                    currentBio={user.bio}
+                    currentDisplayName={user.displayName}
+                    currentUsername={user.username}
+                    onSuccess={handleProfileUpdated}
+                />
+            )}
         </div>
     );
 }

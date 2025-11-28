@@ -29,10 +29,10 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
                 <div className="flex items-start gap-4 mb-6">
                     {/* Avatar */}
                     <div className="relative -mt-20">
-                        <Avatar className="w-32 h-32 border-4 border-white">
-                            <AvatarImage src={user.avatar} alt={user.username} />
+                        <Avatar className="w-32 h-32 border-4 border-card">
+                            <AvatarImage src={user.avatar} alt={user.displayName} />
                             <AvatarFallback className="text-4xl">
-                                {user.username.charAt(0).toUpperCase()}
+                                {user.displayName.charAt(0).toUpperCase()}
                             </AvatarFallback>
                         </Avatar>
                     </div>
@@ -68,27 +68,29 @@ export const ProfileHeader: React.FC<ProfileHeaderProps> = ({
 
                 {/* User Info */}
                 <div className="mb-6">
-                    <h1 className="text-2xl font-bold text-gray-900">{user.username}</h1>
-                    <p className="text-gray-600 text-sm mt-1">@{user.username.toLowerCase()}</p>
-                    {user.bio && <p className="text-gray-700 mt-3">{user.bio}</p>}
+                    <h1 className="text-2xl font-bold text-foreground">{user.displayName}</h1>
+                    {user.username && (
+                        <p className="text-muted-foreground text-sm mt-1">@{user.username.toLowerCase()}</p>
+                    )}
+                    {user.bio && <p className="text-foreground mt-3">{user.bio}</p>}
                 </div>
 
                 {/* Stats */}
                 <div className="grid grid-cols-4 gap-4">
                     <div className="bg-muted rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold">{user.streakCount}</div>
+                        <div className="text-2xl font-bold text-foreground">{user.streakCount}</div>
                         <div className="text-sm text-muted-foreground">Day Streak</div>
                     </div>
                     <div className="bg-muted rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold">{user.followers}</div>
+                        <div className="text-2xl font-bold text-foreground">{user.followers}</div>
                         <div className="text-sm text-muted-foreground">Followers</div>
                     </div>
                     <div className="bg-muted rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold">{user.following}</div>
+                        <div className="text-2xl font-bold text-foreground">{user.following}</div>
                         <div className="text-sm text-muted-foreground">Following</div>
                     </div>
                     <div className="bg-muted rounded-lg p-4 text-center">
-                        <div className="text-2xl font-bold">24</div>
+                        <div className="text-2xl font-bold text-foreground">24</div>
                         <div className="text-sm text-muted-foreground">Shells</div>
                     </div>
                 </div>
