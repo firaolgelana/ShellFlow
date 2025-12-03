@@ -46,12 +46,12 @@ export const ChatRoomList: React.FC<ChatRoomListProps> = ({ onChatSelected, acti
     };
 
     return (
-        <Card className="h-full border-r-0 rounded-r-none">
+        <Card className="h-full border-r-0 rounded-r-none flex flex-col">
             <CardHeader>
                 <CardTitle>Messages</CardTitle>
             </CardHeader>
-            <CardContent className="p-0">
-                <ScrollArea className="h-[calc(100vh-200px)]">
+            <CardContent className="p-0 flex-1 overflow-hidden">
+                <ScrollArea className="h-full">
                     {loading ? (
                         <div className="p-4 text-center">Loading chats...</div>
                     ) : chatRooms.length === 0 ? (

@@ -67,12 +67,12 @@ export const UserList: React.FC<UserListProps> = ({ onChatCreated }) => {
     };
 
     return (
-        <Card className="h-full">
+        <Card className="h-full flex flex-col">
             <CardHeader>
                 <CardTitle>Users</CardTitle>
             </CardHeader>
-            <CardContent className="p-0">
-                <ScrollArea className="h-[400px]">
+            <CardContent className="p-0 flex-1 overflow-hidden">
+                <ScrollArea className="h-full">
                     {loading ? (
                         <div className="p-4 text-center">Loading users...</div>
                     ) : (

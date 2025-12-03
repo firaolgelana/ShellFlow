@@ -26,23 +26,32 @@ export class FirebaseChatRepository implements ChatRepository {
     private usersCollection = 'users';
 
     async createChatRoom(participants: string[]): Promise<string> {
-        // Check if a chat room with these exact participants already exists
-        // This is a bit complex in Firestore without a specific structure, 
-        // but for now we'll just create a new one or return existing if we can find it easily.
-        // A better approach for 1-on-1 chats is to generate a deterministic ID (e.g., sorted userIds joined)
-
         const sortedParticipants = [...participants].sort();
-        // For 1-on-1, we can try to find if one exists
-        if (sortedParticipants.length === 2) {
-            // This query is limited in Firestore (array-contains can only check one value usually or requires specific index)
-            // A common pattern is to store a "participantIds" array and query it.
-            // Or construct a unique ID for 1-on-1: `chat_${uid1}_${uid2}`
+
+        // Check if a chat room with these exact participants already exists
+        // We query by the first participant to narrow down the search
+        if (participants.length > 0) {
+            const q = query(
+                collection(db, this.chatRoomsCollection),
+                where('participants', 'array-contains', participants[0])
+            );
+            const snapshot = await getDocs(q);
+
+            for (const doc of snapshot.docs) {
+                const data = doc.data();
+                const existingParticipants = (data.participants as string[]).sort();
+
+                if (existingParticipants.length === sortedParticipants.length &&
+                    existingParticipants.every((val, index) => val === sortedParticipants[index])) {
+                    return doc.id;
+                }
+            }
         }
 
         const chatRoomRef = await addDoc(collection(db, this.chatRoomsCollection), {
             participants: participants,
-            createdAt: Timestamp.now(),
-            updatedAt: Timestamp.now(),
+            createdAt: serverTimestamp(),
+            updatedAt: serverTimestamp(),
         });
         return chatRoomRef.id;
     }

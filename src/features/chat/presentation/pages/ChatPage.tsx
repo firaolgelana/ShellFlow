@@ -17,7 +17,7 @@ export const ChatPage: React.FC = () => {
     };
 
     return (
-        <div className="container mx-auto p-4 h-[calc(100vh-100px)]">
+        <div className="container mx-auto p-4 h-[calc(100vh-5rem)]">
             <div className="grid grid-cols-12 h-full gap-4">
                 <div className="col-span-3 h-full">
                     <UserList onChatCreated={handleChatCreated} />
