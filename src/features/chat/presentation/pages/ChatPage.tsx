@@ -15,21 +15,26 @@ export const ChatPage: React.FC = () => {
     const handleChatSelected = (chatRoomId: string) => {
         setSelectedChatRoomId(chatRoomId);
     };
-
     return (
         <div className="container mx-auto p-4 h-[calc(100vh-5rem)]">
-            <div className="grid grid-cols-12 h-full gap-4">
-                <div className="col-span-3 h-full">
+            <div className="grid grid-cols-12 h-full gap-4 min-h-0">
+
+                {/* User list */}
+                <div className="col-span-3 h-full min-h-0">
                     <UserList onChatCreated={handleChatCreated} />
                 </div>
-                <div className="col-span-3 h-full">
+
+                {/* Chat room list */}
+                <div className="col-span-3 h-full min-h-0">
                     <ChatRoomList
                         onChatSelected={handleChatSelected}
                         activeChatRoomId={selectedChatRoomId || undefined}
                         refreshTrigger={refreshTrigger}
                     />
                 </div>
-                <div className="col-span-6 h-full">
+
+                {/* Chat window */}
+                <div className="col-span-6 h-full min-h-0">
                     {selectedChatRoomId ? (
                         <ChatWindow chatRoomId={selectedChatRoomId} />
                     ) : (
@@ -38,6 +43,7 @@ export const ChatPage: React.FC = () => {
                         </div>
                     )}
                 </div>
+
             </div>
         </div>
     );

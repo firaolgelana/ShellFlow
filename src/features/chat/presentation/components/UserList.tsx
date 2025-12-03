@@ -5,7 +5,6 @@ import { CreateChatRoom } from '@/features/chat/application/CreateChatRoom';
 import { Avatar, AvatarFallback, AvatarImage } from '@/shared/components/ui/avatar';
 import { Button } from '@/shared/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/shared/components/ui/card';
-import { ScrollArea } from '@/shared/components/ui/scroll-area';
 import { useAuth } from '@/features/auth/presentation/useAuth';
 import { FirebaseChatRepository } from '@/features/chat/infrastructure/FirebaseChatRepository';
 import { FirebaseFollowRepository } from '@/features/social/infrastructure/FirebaseFollowRepository';
@@ -19,7 +18,7 @@ export const UserList: React.FC<UserListProps> = ({ onChatCreated }) => {
     const [loading, setLoading] = useState(false);
     const { user: currentUser } = useAuth();
 
-    // Dependency injection (ideally should be passed via props or context)
+    // Dependency injection
     const chatRepository = new FirebaseChatRepository();
     const followRepository = new FirebaseFollowRepository();
     const getAllUsers = new GetAllUsers(chatRepository);
@@ -67,36 +66,34 @@ export const UserList: React.FC<UserListProps> = ({ onChatCreated }) => {
     };
 
     return (
-        <Card className="h-full flex flex-col">
-            <CardHeader>
+        <Card className="h-full flex flex-col gap-0 py-0">
+            <CardHeader className="flex-shrink-0 border-b py-4">
                 <CardTitle>Users</CardTitle>
             </CardHeader>
-            <CardContent className="p-0 flex-1 overflow-hidden">
-                <ScrollArea className="h-full">
-                    {loading ? (
-                        <div className="p-4 text-center">Loading users...</div>
-                    ) : (
-                        <div className="flex flex-col gap-2 p-4">
-                            {users.map(user => (
-                                <Button
-                                    key={user.id}
-                                    variant="ghost"
-                                    className="justify-start h-auto py-3 px-4"
-                                    onClick={() => handleUserClick(user.id)}
-                                >
-                                    <Avatar className="h-10 w-10 mr-3">
-                                        <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
-                                        <AvatarFallback>{user.displayName?.substring(0, 2).toUpperCase() || 'U'}</AvatarFallback>
-                                    </Avatar>
-                                    <div className="flex flex-col items-start">
-                                        <span className="font-medium">{user.displayName || user.email}</span>
-                                        <span className="text-xs text-muted-foreground">{user.email}</span>
-                                    </div>
-                                </Button>
-                            ))}
-                        </div>
-                    )}
-                </ScrollArea>
+            <CardContent className="flex-1 overflow-y-auto p-0 min-h-0">
+                {loading ? (
+                    <div className="p-4 text-center">Loading users...</div>
+                ) : (
+                    <div className="flex flex-col gap-2 p-4">
+                        {users.map(user => (
+                            <Button
+                                key={user.id}
+                                variant="ghost"
+                                className="justify-start h-auto py-3 px-4"
+                                onClick={() => handleUserClick(user.id)}
+                            >
+                                <Avatar className="h-10 w-10 mr-3">
+                                    <AvatarImage src={user.photoURL || ''} alt={user.displayName || 'User'} />
+                                    <AvatarFallback>{user.displayName?.substring(0, 2).toUpperCase() || 'U'}</AvatarFallback>
+                                </Avatar>
+                                <div className="flex flex-col items-start">
+                                    <span className="font-medium">{user.displayName || user.email}</span>
+                                    <span className="text-xs text-muted-foreground">{user.email}</span>
+                                </div>
+                            </Button>
+                        ))}
+                    </div>
+                )}
             </CardContent>
         </Card>
     );
